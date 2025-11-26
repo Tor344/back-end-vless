@@ -110,6 +110,43 @@ def add_user_interactive() -> None:
     make_link_for_email(email)
 
 
+def add_user(email: str):
+    # 1. Проверка валидности email
+    if not email or " " in email:
+        print("Ошибка: Имя пользователя не может быть пустым или содержать пробелы.")
+        return False
+
+    cfg = load_config()
+    clients = get_users(cfg)
+
+    # 2. Проверка на дубликаты
+    if any(c.get("email") == email for c in clients):
+        print(f"Пользователь с именем '{email}' уже существует.")
+        return False
+
+    # 3. Генерация UUID и добавление клиента
+    # .strip() добавлен на случай, если команда вернет перенос строки
+    uuid = run("xray uuid").strip()
+
+    clients.append({
+        "email": email,
+        "id": uuid,
+        "flow": "xtls-rprx-vision"
+    })
+
+    # 4. Сохранение и перезагрузка
+    cfg["inbounds"][0]["settings"]["clients"] = clients
+    save_config(cfg)
+    restart_xray()
+
+    print(f"Пользователь {email} успешно добавлен.")
+
+    # 5. Генерация ссылки
+    return make_link_for_email(email)
+
+
+
+
 def remove_user_interactive() -> bool:
     cfg = load_config()
     clients = get_users(cfg)

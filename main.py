@@ -39,7 +39,7 @@ async def show_user(auth: bool = Depends(verify_token)):
 
 @app.post("/new_user/{name_user}")
 async def new_user(name_user: str =  Path(..., min_length=1, max_length=10), auth: bool = Depends(verify_token)):
-    text_config = manager.make_link_for_email(name_user)
+    text_config = manager.add_user(name_user)
     return {"link": text_config}
 
 
